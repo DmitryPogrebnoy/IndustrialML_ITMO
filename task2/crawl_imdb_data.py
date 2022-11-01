@@ -23,6 +23,7 @@ FILTER_HREFS_REGEXP = re.compile("^\/title\/tt.*")
 EXTRACT_ID_REGEXP = re.compile("tt\d*")
 
 IMDB_GENRE_URL = 'https://www.imdb.com/search/title/?genres='
+IMDB_SUPERHERO_GENRE_URL = 'https://www.imdb.com/search/keyword/?keywords=superhero&title_type=movie&page='
 IMDB_TITLE_URL = 'https://www.imdb.com/title/'
 
 session = requests.Session()
@@ -50,10 +51,15 @@ def crawl_genre_ids(genre: str) -> List[str]:
 
     unique_ids = []
     for i in range(1, NUMBER_OF_FILMS_PER_CATEGORIES, NUMBER_FILMS_ON_PAGE):
-        url = IMDB_GENRE_URL + genre.lower() + "&start=" + str(i)
+        if genre != "superhero":
+            url = IMDB_GENRE_URL + genre.lower() + "&start=" + str(i)
+        else:
+            url = IMDB_SUPERHERO_GENRE_URL + str(i // 50 + 1)
         print(f"Crawl ids from: {url}")
         html = get_html(url)
+        # Because the superhero genre doesn't have its own page and tags
         unique_ids.extend(get_links_to_film_pages(html))
+
     return unique_ids
 
 
